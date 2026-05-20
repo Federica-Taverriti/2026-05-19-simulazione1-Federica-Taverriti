@@ -73,19 +73,21 @@ class DAO():
         return result
 
     @staticmethod
-    def getClientiArtista(artistId):
+    def getClientiArtista(artistId, genere):
         conn = DBConnect.get_connection()
 
         result = set()
 
         cursor = conn.cursor(dictionary=True)
         query = """select distinct i.CustomerId 
-                    from Invoice i, InvoiceLine il, Track t, Album al
+                    from Invoice i, InvoiceLine il, Track t, Album al, Genre g
                     where i.InvoiceId = il.InvoiceId 
                     and il.TrackId = t.TrackId 
                     and t.AlbumId = al.AlbumId 
-                    and al.ArtistId = %s"""
-        cursor.execute(query, (artistId,))
+                    and t.GenreId = g.GenreId 
+                    and al.ArtistId = %s
+                    and g.Name =%s"""
+        cursor.execute(query, (artistId, genere))
 
         for row in cursor:
             result.add(row["CustomerId"])

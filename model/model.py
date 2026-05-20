@@ -1,3 +1,5 @@
+import copy
+
 import networkx as nx
 
 from database.DAO import DAO
@@ -6,32 +8,72 @@ from database.DAO import DAO
 class Model:
     def __init__(self):
         self._grafo = nx.DiGraph()
-        self._artisti = []
         self._popolarita = {}
+        self._idMap = {}
+        self._bestPath = []
+        self._bestObjVal = 0
+
+    def getBestPath(self, v0):
+        self._bestPath = [v0]
+        self._bestObjVal = 1
+
+        parziale = [v0]
+
+        for v in self._grafo.successors(v0):
+            parziale.append(v)
+            self._ricorsione(parziale)
+            parziale.pop()
+
+        return self._bestPath
+
+    def _ricorsione(self, parziale):
+        #ottimalità
+        if len(parziale) > self._bestObjVal:
+            self._bestPath = copy.deepcopy(parziale)
+            self._bestObjVal = len(parziale)
+
+        #terminazione
+
+        #ricorsione
+        for v in self._grafo.successors(parziale[-1]):
+            pesoNuovo = self._grafo[parziale[-1]][v]["weight"]
+            pesoVecchio = self._grafo[parziale[-2]][parziale[-1]]["weight"]
+            if pesoNuovo > pesoVecchio and v not in parziale:
+                parziale.append(v)
+                self._ricorsione(parziale)
+                parziale.pop()
+
 
     def getAllGenre(self):
         return DAO.getAllGenre()
 
     def getAllArtists(self, genere):
-        self._artisti = DAO.getAllArtists(genere)
-        return self._artisti
+        artisti = DAO.getAllArtists(genere)
+        self._idMap = {}
+        for a in artisti:
+            self._idMap[a.Name] = a
+        return artisti
 
     def creaGrafo(self, genere):
-        self._artisti = DAO.getAllArtists(genere)
+        artisti = DAO.getAllArtists(genere)
+        self._idMap = {}
+        for a in artisti:
+            self._idMap[a.Name] = a
+
         self._grafo.clear()
-        self._grafo.add_nodes_from(self._artisti)
+        self._grafo.add_nodes_from(artisti)
 
         self._popolarita = DAO.getPopolaritaArtisti(genere)
 
         clientiArtista = {}
-        for ar in self._artisti:
-            clientiArtista[ar] = DAO.getClientiArtista(ar.ArtistId)
+        for ar in artisti:
+            clientiArtista[ar] = DAO.getClientiArtista(ar.ArtistId, genere)
 
         #creazione archi
-        for i in range(len(self._artisti)):
-            for j in range(i+1, len(self._artisti)):
-                a = self._artisti[i]
-                b = self._artisti[j]
+        for i in range(len(artisti)):
+            for j in range(i+1, len(artisti)):
+                a = artisti[i]
+                b = artisti[j]
 
                 clientiA = clientiArtista.get(a, set())
                 clientiB = clientiArtista.get(b, set())
