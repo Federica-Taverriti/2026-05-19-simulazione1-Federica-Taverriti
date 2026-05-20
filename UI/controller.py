@@ -32,9 +32,20 @@ class Controller:
             ft.Text(f"Numero di vertici: {nNodi} - Numero di archi: {nArchi}")
         )
 
-        for n in self._model._grafo.nodes:
+        bestArtist, influenza = self._model.getBestArtist()
+
+        self._view.txt_result.controls.append(
+            ft.Text(f"Artista con maggiore influenza: {bestArtist} ({influenza})", color="purple")
+        )
+
+        topEdges = self._model.getTopEdges()
+        self._view.txt_result.controls.append(
+            ft.Text("Top 5 archi:", color="blue")
+        )
+
+        for a, b, p in topEdges:
             self._view.txt_result.controls.append(
-                ft.Text(f"{n.ArtistId} - {n.Name}.")
+                ft.Text(f"{a} -> {b} (Acquisti/peso: {p['weight']})", color="blue")
             )
 
         self._view.update_page()

@@ -56,7 +56,7 @@ class DAO():
         cursor = conn.cursor(dictionary=True)
         query = """select ar.ArtistId, ar.Name, sum(il.Quantity ) as pop
                     from Artist ar, Album al, Track t, Genre g, InvoiceLine il
-                    where ar.ArtistId = al.AlbumId 
+                    where ar.ArtistId = al.ArtistId 
                     and al.AlbumId = t.AlbumId 
                     and t.GenreId = g.GenreId 
                     and t.TrackId = il.TrackId 
