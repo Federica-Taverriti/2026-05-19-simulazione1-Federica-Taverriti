@@ -22,6 +22,8 @@ class Controller:
             return
         self._model.creaGrafo(genere)
 
+        self.fillDDArtist()
+
         self._view.txt_result.controls.clear()
         self._view.txt_result.controls.append(
             ft.Text("Grafo creato correttamente!", color="green")
@@ -53,6 +55,14 @@ class Controller:
 
     #def handleCreaGrafo(self,e):
         #pass
+
+    def fillDDArtist(self):
+        genere = self._view._ddGenre.value
+        artisti = self._model.getAllArtists(genere)
+
+        artistiDD = list(map(lambda x: ft.dropdown.Option(x), artisti))
+        self._view._ddArtist.options = artistiDD
+        self._view.update_page()
 
     def handleCammino(self,e):
         pass

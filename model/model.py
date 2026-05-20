@@ -12,6 +12,10 @@ class Model:
     def getAllGenre(self):
         return DAO.getAllGenre()
 
+    def getAllArtists(self, genere):
+        self._artisti = DAO.getAllArtists(genere)
+        return self._artisti
+
     def creaGrafo(self, genere):
         self._artisti = DAO.getAllArtists(genere)
         self._grafo.clear()
